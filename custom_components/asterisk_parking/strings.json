@@ -1,0 +1,31 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Asterisk AMI",
+        "description": "Enter AMI credentials, parking lot, and inclusive parking slot range."
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to AMI or the login was rejected.",
+      "invalid_range": "Enter a valid range where the end is greater than or equal to the start.",
+      "range_too_large": "The range cannot contain more than 200 slots."
+    },
+    "abort": {
+      "already_configured": "This AMI connection is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Asterisk Parking settings",
+        "description": "Update AMI connection details, parking lot, and parking slot range."
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to AMI or the login was rejected.",
+      "invalid_range": "Enter a valid range where the end is greater than or equal to the start.",
+      "range_too_large": "The range cannot contain more than 200 slots."
+    }
+  }
+}
