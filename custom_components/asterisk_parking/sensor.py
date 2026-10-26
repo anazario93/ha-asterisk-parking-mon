@@ -11,8 +11,10 @@ async def async_setup_entry(hass, entry, async_add_entities) -> None:
     """Create one sensor per configured parking slot."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        ParkingSlotSensor(coordinator, entry.entry_id, slot)
-        for slot in coordinator.slots
+        [
+            *(ParkingSlotSensor(coordinator, entry.entry_id, slot) for slot in coordinator.slots),
+            ParkedCallsCountSensor(coordinator, entry.entry_id),
+        ]
     )
 
 
@@ -51,3 +53,26 @@ class ParkingSlotSensor(CoordinatorEntity, SensorEntity):
             "caller_id_name": details.get("caller_id_name"),
             "channel": details.get("channel"),
         }
+
+
+class ParkedCallsCountSensor(CoordinatorEntity, SensorEntity):
+    """Represent the total number of currently parked calls."""
+
+    _attr_has_entity_name = True
+    _attr_name = "Total Parked Calls"
+    _attr_icon = "mdi:phone-log"
+    _attr_native_unit_of_measurement = "calls"
+    _attr_state_class = "measurement"
+
+    def __init__(self, coordinator, entry_id: str) -> None:
+        """Initialize the total parked calls sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry_id}_parked_calls_count"
+
+    @property
+    def native_value(self) -> int:
+        """Return the number of parking slots currently holding calls."""
+        return sum(
+            1 for slot in self.coordinator.slots
+            if self.coordinator.data[slot]["status"] == "waiting"
+        )
