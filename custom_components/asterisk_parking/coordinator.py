@@ -42,7 +42,7 @@ class AsteriskParkingCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
         end = int(config[CONF_SLOT_END])
         self.slots = tuple(str(slot) for slot in range(start, end + 1))
         self.data = {
-            slot: {"status": "unknown", "caller_id": None, "channel": None}
+            slot: {"status": "unknown", "caller_id": None, "caller_id_name": None, "channel": None}
             for slot in self.slots
         }
         self._writer: asyncio.StreamWriter | None = None
@@ -80,7 +80,7 @@ class AsteriskParkingCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
                 self._snapshot_seen.clear()
                 for slot in self.slots:
                     self.data[slot] = {
-                        "status": "unknown", "caller_id": None, "channel": None
+                        "status": "unknown", "caller_id": None, "caller_id_name": None, "channel": None
                     }
                 self.async_set_updated_data(self.data)
             if not self._stopped:
@@ -124,6 +124,7 @@ class AsteriskParkingCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
                 self.data[slot] = {
                     "status": "waiting",
                     "caller_id": packet.get("parkeecalleridnum") or packet.get("calleridnum"),
+                    "caller_id_name": packet.get("parkeecalleridname") or packet.get("calleridname"),
                     "channel": packet.get("parkeechannel") or packet.get("channel"),
                 }
                 self.async_set_updated_data(self.data)
@@ -134,7 +135,7 @@ class AsteriskParkingCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
             for slot in self.slots:
                 if slot not in self._snapshot_seen:
                     self.data[slot] = {
-                        "status": "free", "caller_id": None, "channel": None
+                        "status": "free", "caller_id": None, "caller_id_name": None, "channel": None
                     }
             self.async_set_updated_data(self.data)
         elif event in {
