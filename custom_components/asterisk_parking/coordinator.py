@@ -147,6 +147,6 @@ class AsteriskParkingCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
             slot = packet.get("parkingspace")
             if slot in self.data:
                 self.data[slot] = {
-                    "status": "free", "caller_id": None, "channel": None
+                    "status": "free", "caller_id": None, "caller_id_name": None, "channel": None
                 }
                 self.async_set_updated_data(self.data)
