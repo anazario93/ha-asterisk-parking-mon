@@ -47,5 +47,7 @@ class ParkingSlotSensor(CoordinatorEntity, SensorEntity):
             "parking_slot": self._slot,
             "parking_lot": self.coordinator.parkinglot,
             "caller_id": details.get("caller_id"),
+            "caller_id_number": details.get("caller_id"),
+            "caller_id_name": details.get("caller_id_name"),
             "channel": details.get("channel"),
         }
