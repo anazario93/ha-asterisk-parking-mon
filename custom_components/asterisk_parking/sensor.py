@@ -31,8 +31,13 @@ class ParkingSlotSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> str:
-        """Return free, waiting, or unknown."""
-        return self.coordinator.data[self._slot]["status"]
+        """Return a human-readable parking status."""
+        status = self.coordinator.data[self._slot]["status"]
+        return {
+            "free": "Free",
+            "waiting": "Call Waiting",
+            "unknown": "Unknown",
+        }.get(status, "Unknown")
 
     @property
     def extra_state_attributes(self) -> dict:
