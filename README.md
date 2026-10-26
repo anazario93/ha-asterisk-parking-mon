@@ -6,9 +6,9 @@ A Home Assistant custom integration that monitors Asterisk parking slots over AM
 
 - Configure AMI host, port, username, password, and parking lot from the Home Assistant UI.
 - Configure an inclusive parking-slot range (defaults to **401–403**).
-- Creates one sensor per slot with state `free`, `waiting`, or `unknown`.
+- Creates one sensor per slot with state `free`, `waiting`, or `unknown` with caller ID attributes.
 - Reconnects to AMI after connection failures.
-- Changes states to `unknown` on disconnect rather than incorrectly reporting slots as free.
+- Changes states to `unknown` on disconnect rather than incorrectly reporting slots as free (states will show as unknown upon each startup until a slot is in use for the first time).
 
 ## Installation via HACS
 
