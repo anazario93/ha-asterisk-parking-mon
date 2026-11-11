@@ -53,18 +53,38 @@ class AsteriskParkingCoordinator(DataUpdateCoordinator[dict[str, dict[str, Any]]
         self._snapshot_seen: set[str] = set()
 
     async def async_start(self) -> None:
-        """Start background listener."""
-        self._task = self.hass.async_create_task(self._connection_loop())
+        """Start the AMI listener as a background task.
+
+        A persistent socket listener must not be tracked as a setup task,
+        otherwise Home Assistant bootstrap waits for it to finish.
+        """
+        if self._task is not None and not self._task.done():
+            return
+        self._stopped = False
+        self._task = self.hass.async_create_background_task(
+            self._connection_loop(),
+            name=f"{DOMAIN} AMI listener",
+        )
 
     async def async_stop(self) -> None:
-        """Stop listener."""
+        """Stop the listener and close its socket cleanly."""
+        if self._stopped:
+            return
         self._stopped = True
-        if self._writer:
-            self._writer.close()
-        if self._task:
-            self._task.cancel()
+
+        writer = self._writer
+        self._writer = None
+        if writer is not None:
+            writer.close()
+            with contextlib.suppress(OSError, RuntimeError):
+                await writer.wait_closed()
+
+        task = self._task
+        self._task = None
+        if task is not None and not task.done():
+            task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
-                await self._task
+                await task
 
     async def _connection_loop(self) -> None:
         while not self._stopped:
