@@ -14,11 +14,14 @@ PLATFORMS = [Platform.SENSOR]
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up an Asterisk parking monitor entry."""
     coordinator = AsteriskParkingCoordinator(hass, entry)
-    await coordinator.async_start()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
+    # Register cleanup before starting the long-lived AMI listener.
     entry.async_on_unload(coordinator.async_stop)
+    entry.async_on_unload(entry.add_update_listener(_async_update_listener))
+
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await coordinator.async_start()
     return True
 
 
